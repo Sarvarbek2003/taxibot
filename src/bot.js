@@ -5,14 +5,15 @@ const bot = new TelegramBot(token,{polling: true});
 const passager = require('./controllers/passager.js');
 const driver = require('./controllers/driver.js');
 
-const { roole, home, from_city } = require('./menu.js');
+const { roole, home, from_city, to_city } = require('./menu.js');
 const { selctUsers, 
-        insertUser, 
         updateUsers, 
         insertOrder, 
         updateOrder, 
         deleteOrder,
         orderSearch, 
+        insertUser, 
+        selectCity,
         orders, 
         order } = require('./models/query.js');
 
@@ -50,13 +51,13 @@ bot.on('text', async msg => {
 bot.on('contact', async msg => {
     let chatId = msg.chat.id;
     let msgId = msg.message_id;
-    let txt = ''
+    let txt = '';
     bot.deleteMessage(chatId, msgId,{ reply_markup: {remove_keyboard: true} });
     bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
     await updateOrder(msg.chat.id,{tel: msg.contact.phone_number});
     let obj = await search(chatId);
-    if(obj) txt = obj.txt 
-    bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling sizga haydovchi izlayabmiz!\n\n'+txt,{
+    if(obj) txt = obj.txt;
+    bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!'+txt+'\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
         parse_mode: 'markdown',
         reply_markup: home
     });
@@ -75,7 +76,7 @@ bot.on('callback_query', async msg => {
             passager(bot, msg);
             if(kl) bot.deleteMessage(chatId, msg.message.message_id-1); kl = false;
             let order = (await orders(chatId));
-            if (dat == 'updateorder') steep.splice(1), await updateUsers(chatId, {steep: steep})
+            if (dat == 'updateorder') steep.splice(1), await updateUsers(chatId, {steep: steep});
             await updateUsers(chatId, {roole: {is_ps: true}});
             if(!order.length) await insertOrder(chatId, 'passager');
             if(steep[1] != 'passager') {steep.push('passager'); await updateUsers(chatId, {steep: steep});}
@@ -99,9 +100,10 @@ bot.on('callback_query', async msg => {
             parse_mode: 'html',
             reply_markup: roole
         });
+        return
     }
     if(dat == 'myorder'){
-        let txt = await orderRun(chatId)
+        let txt = await orderRun(chatId);
         setTimeout(() => {
             bot.editMessageText(txt,{
                 chat_id: chatId,
@@ -123,20 +125,19 @@ bot.on('callback_query', async msg => {
         })
     }
     else if(dat == 'search'){
-        let obj = await searchDriver(chatId);
+        let obj = await search(chatId);
         let txt = obj?.txt
         if(txt === undefined) txt = '❌ Topilmadi'
-        bot.editMessageText('✅Yaxshi arizangiz qabul qilindi aloqada qoling sizga haydovchi izlayabmiz!\n\n'+txt,{
-            chat_id:chatId,
-            message_id: msgId,
-            parse_mode: 'markdown',
-            reply_markup: home
-        });
+        setTimeout(() => {
+            bot.editMessageText('✅Yaxshi arizangiz qabul qilindi aloqada qoling'+txt+'\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
+                chat_id: chatId,
+                message_id: msgId,
+                parse_mode: 'markdown',
+                reply_markup: home
+            });
+        }, 1000);
     }
-    
 });
-
-
 
 let time = {
     1: '00:00 - 03:00',
@@ -157,34 +158,44 @@ async function orderRun(chatId){
     return `<b>🚩 Qayerdan:</b> ${o.from_city} --> ${o.from_district}\n\n<b>🏁 Qayerga:</b> ${o.to_city} --> ${o.to_district}\n\n<b>📆 Qachon:</b> ${o.date+'/'+m.padStart(2, '0')+'/'+y}\n\n<b>⏰ Soat:</b> ${t} oraliqda\n\n<b>📞 Telefon:</b> ${o.phone}\n\n<i>‼️Siz bilan haydovchi aloqaga chiqadi undan oldin o'zingiz haydovchini topishingiz mumkin uning uchun </i><b>🔎 Haydovchi izlash</b><i>ni bosing</i>`
 } 
 
-async function render(chatId){
+async function oRun(chatId){
     let o = await order(chatId);
-    let obj = {from_city: o.from_city, from_district: o.from_district, to_city: o.to_city, to_district: o.to_district }
-    return obj
+    return {to_city: o.to_city, from_city: o.from_city, to_district: o.to_district, from_district: o.from_district, user_id: o.user_id, phone: o.phone}
 } 
 
-async function searchDriver(userId){
-    let orders1 = await orderSearch();
-    let order = await orders(userId);
-    if(!orders1 || !order) return
-    let res = orders1.find(el => {
-        if( order[0].from_city == el.from_city && 
-            order[0].to_city == el.to_city && 
-            el?.from_district.includes(order[0].from_district) && 
-            el?.to_district.includes(order[0].to_district) && 
-            order[0].date == el.date && 
-            order[0].time == el.time && order[0].user_id != el.user_id
-        ){
-            return el
-        }
+async function render(array){
+    let city = await selectCity(true);
+    let dist = await selectCity(false);
+    let obj = {};
+    let = arr = [];
+    array.forEach(ell => {
+        updateOrder(ell.user_id, {status: 'accepted'});
+        city.forEach((el) => {
+            if(ell.to_city == el.city_id){
+                obj.user_id = ell.user_id;
+                obj.phone = ell.phone;
+                obj.to_city = el.city_name;
+            } else if (ell.from_city == el.city_id){
+                obj.from_city = el.city_name;
+            } 
+        });
+        dist.forEach(el => {
+            if (ell.to_district == el.district_id){
+                obj.to_district = el.district_name;
+            } else if(ell.from_district == el.district_id){
+                obj.from_district = el.district_name;
+            }
+        })
+        arr.push(obj);
+        obj = {};
     });
-    if(res) return {id: res.user_id, txt: `🚕 Haydovchi topildi 👇\n\n📨 Telegram orqali: [Bog'lanish](tg://user?id=887528138)\n📞 Telelefon raqami: ${res.phone}`}
-}
+    return arr;
+} 
 
 async function search(userId){
     let orders1 = await orderSearch();
     let order = await orders(userId);
-    if(!orders1 || !order) return
+    if(!orders1 || !order) return;
     let res = orders1.filter(el => {
         if( order[0]?.from_city == el?.from_city && 
             order[0]?.to_city == el?.to_city && 
@@ -192,9 +203,11 @@ async function search(userId){
             el?.to_district.includes(order[0]?.to_district) && 
             order[0]?.date == el?.date && 
             order[0]?.time == el?.time && 
-            el?.roole == 'driver' && order[0]?.roole != 'driver'
+            el?.roole == 'driver' && 
+            order[0]?.roole != 'driver' && 
+            el?.status == 'pending'
         ){
-            return el
+            return el;
         } else if(
             order[0]?.from_city == el?.from_city && 
             order[0]?.to_city == el?.to_city && 
@@ -202,21 +215,48 @@ async function search(userId){
             order[0]?.to_district.includes(el?.to_district) && 
             order[0]?.date == el?.date && 
             order[0]?.time == el?.time && 
-            el?.roole == 'passager'
+            el?.roole == 'passager' && 
+            order[0]?.roole != 'passager'  &&   
+            el?.status == 'pending'   
         ){
-            return el
+            return el;
         }
     });
-    if(res?.roole == 'driver') return {id: res[0].user_id, txt: `🚕 Haydovchi topildi 👇\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${res[0].user_id})\n📞 *Telelefon raqami:* \`${res[0].phone}\``}
-    if(res?.roole == 'passager'){
-        let ress = await render(res.user_id)
-        ress.map(el => txt+= `🚕 Yo'lovchi topildi 👇\n\n🚩 *${ress.from_city} ➡️ ${ress.from_district}dan*\n🏁 *${ress.to_city} ➡️ ${ress.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${res.user_id})\n📞 *Telelefon raqami:* \`${res.phone}\``)
-        // return {id: res.user_id, txt: `🚕 Yo'lovchi topildi 👇\n\n🚩 *${ress.from_city} ➡️ ${ress.from_district}dan*\n🏁 *${ress.to_city} ➡️ ${ress.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${res.user_id})\n📞 *Telelefon raqami:* \`${res.phone}\``}
+    if(res[0]?.roole == 'driver') {
+        let user = await oRun(order[0].user_id)
+        bot.sendMessage(res[0].user_id, `🚕 Yo'lovchi topildi u bilan bog'laning\n\n🚩 *${user.from_city} ➡️ ${user.from_district}dan*\n🏁 *${user.to_city} ➡️ ${user.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${user.user_id})\n📞 *Telelefon raqami:* \`${user.phone}\``,{
+            parse_mode: 'markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{text: '🤝Kelishuv amalga oshdi✅', callback_data: 'accepted='+user.user_id}],
+                    [{text: '🤝Kelishuv amalga oshmadi❌', callback_data: 'rejected='+user.user_id}]
+                ]
+            }
+        })
+        return {id: res[0].user_id, txt: `🚕 Haydovchi topildi 👇\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${res[0].user_id})\n📞 *Telelefon raqami:* \`${res[0].phone}\``}
+    }else {
+        let response = await renderPassager(res,order[0]);
+        return {txt: response}
     }
 }
 
-async function renderPassager (){
-    
+async function renderPassager (array,obj){
+    let txt = '';
+    array.splice(4);
+    let ress = await render(array);
+    ress.forEach(async ress => {
+        bot.sendMessage(ress.user_id, `🚕 Haydovchi topildi u bilan bog'laning\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${obj.user_id})\n📞 *Telelefon raqami:* \`${obj.phone}\``,{
+            parse_mode: 'markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{text: '🤝Kelishuv amalga oshdi✅', callback_data: 'accept='+obj.user_id}],
+                    [{text: '🤝Kelishuv amalga oshmadi❌', callback_data: 'reject='+obj.user_id}]
+                ]
+            }
+        });
+        txt+=`\n\n🚶‍♂️ Yo'lovchi topildi 👇\n🚩 *${ress.from_city} ➡️ ${ress.from_district}dan*\n🏁 *${ress.to_city} ➡️ ${ress.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${ress.user_id})\n📞 *Telelefon raqami:* \`${ress.phone}\``})  
+    return txt;
 }
+
 
 

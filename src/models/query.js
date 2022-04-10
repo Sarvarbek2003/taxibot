@@ -87,10 +87,16 @@ const updateOrder = async(userId,obj) => {
         await data(`
             update orders set date = $2 where user_id = $1
         `,userId, +obj.date);
-    }else if(obj.tel){
+    }
+    else if(obj.tel){
         await data(`
             update orders set phone = $2 where user_id = $1
-        `,userId, +obj.tel);
+        `,userId, obj.tel);
+    }
+    else if(obj.status){
+        await data(`
+            update orders set status = $2 where user_id = $1
+        `,userId, obj.status);
     }
 }
 
@@ -114,6 +120,7 @@ const order = async(userId) => {
     `,userId);
     return res[0]
 }
+
 
 const deleteOrder = async (userId) => {
     await data(`

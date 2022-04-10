@@ -61,6 +61,13 @@ const home = {
     ]
 }
 
+const homedr = {
+    inline_keyboard: [
+        [{text: '📁 Mening buyurtmam', callback_data: 'myorder=order'},{text: '🔎 Yo\'lovchi izlash', callback_data: 'search=driver'}],
+        [{text: '🖌 Buyurmani o`zgartirish', callback_data: 'updateorder=update'}, {text: '✂️ Buyurtmani bekor qilish', callback_data:'cancelOrder=cancel'}]
+    ]
+}
+
 const roole = {
     remove_keyboard: true,
     inline_keyboard: [

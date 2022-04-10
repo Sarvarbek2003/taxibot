@@ -24,6 +24,9 @@ create table district(
 create table orders(
     order_id serial,
     roole varchar(20),
+    price varchar(10),
+    count smallint default 4,
+    status varchar(20) default 'pending',
     user_id bigint,
     from_city varchar(50),    
     to_city varchar(50), 
