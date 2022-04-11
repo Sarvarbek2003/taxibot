@@ -1,4 +1,4 @@
-const token = 'yo`q';
+const token = '1947116926:AAGyhdQWoNPanOqva6Qq78lanHtkUpNFQk8';
 const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(token,{polling: true});
 
@@ -78,7 +78,7 @@ bot.on('contact', async msg => {
     let order = await orders(chatId);
     bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
         parse_mode: 'markdown',
-        reply_markup: order[0].roole == 'driver' ? homedr: home
+        reply_markup: order[0].roole == 'driver' ? homedr : home
     });
     await search(chatId);
 });                     

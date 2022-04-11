@@ -20,8 +20,8 @@ const date = {
 const time = {
     inline_keyboard: [
         [{text: '00:00 - 03:00', callback_data: 'to_city=1'},{text: '03:00 - 06:00', callback_data: 'to_city=2'},{text: '06:00 - 09:00', callback_data: 'to_city=3'}],
-        [{text: '12:00 - 15:00', callback_data: 'to_city=4'},{text: '15:00 - 18:00', callback_data: 'to_city=5'},{text: '18:00 - 21:00', callback_data: 'to_city=6'}],
-        [{text: '21:00 - 00:00', callback_data: 'to_city=7'}],
+        [{text: '09:00 - 12:00', callback_data: 'to_city=4'},{text: '12:00 - 15:00', callback_data: 'to_city=5'},{text: '15:00 - 18:00', callback_data: 'to_city=6'}],
+        [{text: '18:00 - 21:00', callback_data: 'to_city=7'},{text: '21:00 - 00:00', callback_data: 'to_city=8'}],
         [{text: '🔙 Ortga', callback_data: 'd=datecancel'}]
     ]
 }
