@@ -61,7 +61,7 @@ insert into district (city_id, district_name) values
 (1, 'Uchtepa'),
 (1, 'Sergili'),
 (1, 'Chilonzor'),
-(1, 'Shayxontohur'),
+(1, 'Shayxontohur');
 
 insert into district (city_id, district_name) values 
 (2, 'Honabod'),
