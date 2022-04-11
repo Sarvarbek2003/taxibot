@@ -63,7 +63,7 @@ const home = {
 
 const homedr = {
     inline_keyboard: [
-        [{text: '📁 Mening buyurtmam', callback_data: 'myorder=order'},{text: '🔎 Yo\'lovchi izlash', callback_data: 'search=driver'}],
+        [{text: '🔎 Yo\'lovchi izlash', callback_data: 'search=driver'}],
         [{text: '🖌 Buyurmani o`zgartirish', callback_data: 'updateorder=update'}, {text: '✂️ Buyurtmani bekor qilish', callback_data:'cancelOrder=cancel'}]
     ]
 }
@@ -80,6 +80,7 @@ module.exports = {
     from_city,
     to_city,
     cancel,
+    homedr,
     order,
     roole,
     menu,

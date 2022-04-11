@@ -6,6 +6,7 @@ create table users(
     steep varchar(500),
     is_driver boolean default false,
     is_passager boolean default false,
+    phone varchar(15),
     created_at timestamp with time zone default current_timestamp
 );
 
@@ -50,20 +51,65 @@ insert into city (city_name) values
 ('Farg`ona');
 
 insert into district (city_id, district_name) values 
-(1, 'Chilonzor'),
-(1, 'Olmozor'),
+(1, 'Bektemir'),
+(1, 'Olmazor'),
 (1, 'Mirzo Ulug`bek'),
+(1, 'Mirobod'),
+(1, 'Yunusobod'),
+(1, 'Yashnabod'),
 (1, 'Yakkasaroy'),
-(1, 'Yashnabot'),
 (1, 'Uchtepa'),
-(2, 'Xo`jaobod'),
+(1, 'Sergili'),
+(1, 'Chilonzor'),
+(1, 'Shayxontohur'),
+
+insert into district (city_id, district_name) values 
+(2, 'Honabod'),
+(2, 'Oltin ko`l'),
 (2, 'Andijon'),
 (2, 'Asaka'),
-(2, 'Honabod'),
-(2, 'Jalaquduq'),
+(2, 'Baliqchi'),
+(2, 'Bo`ston'),
 (2, 'Buloqboshi'),
-(2, 'Baliqchi');
+(2, 'Jalaquduq'),
+(2, 'Izboskan'),
+(2, 'Qo`rg`on tepa'),
+(2, 'Marhamat'),
+(2, 'Paxtabod'),
+(2, 'Ulug`nor'),
+(2, 'Xo`jaobod'),
+(2, 'Shaxrixon');
 
+insert into district (city_id, district_name) values 
+(3, 'Davlatobod'),
+(3, 'Kosonsoy'),
+(3, 'Mingbuloq'),
+(3, 'Namangan'),
+(3, 'Norin'),
+(3, 'Pop'),
+(3, 'To`raqorg`on'),
+(3, 'Uychi'),
+(3, 'Uchqo`rg`on'),
+(3, 'Chortoq'),
+(3, 'Chust'),
+(3, 'Yangi qorg`on');
+
+insert into district (city_id, district_name) values 
+(4, 'Bog`dod'),
+(4, 'Beshariq'),
+(4, 'Buvayda'),
+(4, 'Dang`ara'),
+(4, 'Farg`ona'),
+(4, 'Furqat'),
+(4, 'Oltiariq'),
+(4, 'O`zbekiston'),
+(4, 'Qo`shtepa'),
+(4, 'Quva'),
+(4, 'Rishton'),
+(4, 'So`x'),
+(4, 'Toshloq'),
+(4, 'Uchko`prik'),
+(4, 'Yozyovon');
 
 update users 
 set steep = , username = 'sarvar'

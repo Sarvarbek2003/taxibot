@@ -5,7 +5,7 @@ const bot = new TelegramBot(token,{polling: true});
 const passager = require('./controllers/passager.js');
 const driver = require('./controllers/driver.js');
 
-const { roole, home, from_city, to_city } = require('./menu.js');
+const { roole, home, homedr } = require('./menu.js');
 const { selctUsers, 
         updateUsers, 
         insertOrder, 
@@ -27,7 +27,7 @@ bot.on('text', async msg => {
     let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
     if(text == '/start'){
         kl = true;
-        await deleteOrder(chatId)
+        // await deleteOrder(chatId);
         bot.sendMessage(chatId, 'Assalomualekum',{reply_markup: {remove_keyboard: true,}});
         let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
         if(!steep) await insertUser(chatId,['home']);
@@ -37,31 +37,49 @@ bot.on('text', async msg => {
             reply_markup: roole
         });
     }else if(steep[steep.length-1] == 'tel'){
+        if (!/^998(9[012345789]|3[3]|7[1]|8[8])[0-9]{7}$/.test(text)) {
+            return bot.sendMessage(chatId,'☎️ Telefon raqamingizni 998901234567 shaklida to\'g\'ri yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
+                parse_mode: 'html',
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: [
+                        [{text: '📞 Telefon raqam', request_contact: true}]
+                    ]
+                }
+            });
+        }else {
+            steep.splice(1);
+            await updateUsers(chatId, {steep: steep});
+        }
         bot.deleteMessage(chatId, msgId,{ reply_markup: {remove_keyboard: true} });
         bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
-        await updateOrder(msg.chat.id,{tel: msg.text});
-        bot.sendMessage(msg.chat.id, '✅Yaxshi arizangiz qabul qilindi aloqada qoling sizga haydovchi izlayabmiz!\n\n<b>Siz bilan haydovchi bog`lanadi</b>',{
-            parse_mode: 'html',
+        await updateOrder(msg.chat.id,{tel: text});
+        await updateUsers(msg.chat.id, {phone: text})
+        bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
+            parse_mode: 'markdown',
             reply_markup: home
         });
+        await search(chatId);
     }
 
 });
 
 bot.on('contact', async msg => {
     let chatId = msg.chat.id;
+    let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
     let msgId = msg.message_id;
-    let txt = '';
+    steep.splice(1);
+    await updateUsers(chatId, {steep: steep});
     bot.deleteMessage(chatId, msgId,{ reply_markup: {remove_keyboard: true} });
     bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
     await updateOrder(msg.chat.id,{tel: msg.contact.phone_number});
-    let obj = await search(chatId);
-    if(obj) txt = obj.txt;
-    bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!'+txt+'\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
+    await updateUsers(msg.chat.id, {phone: msg.contact.phone_number})
+    bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
         parse_mode: 'markdown',
         reply_markup: home
     });
-})
+    await search(chatId);
+});                     
 
 bot.on('callback_query', async msg => {
     let chatId = msg.from.id;
@@ -125,17 +143,65 @@ bot.on('callback_query', async msg => {
         })
     }
     else if(dat == 'search'){
-        let obj = await search(chatId);
-        let txt = obj?.txt
-        if(txt === undefined) txt = '❌ Topilmadi'
-        setTimeout(() => {
-            bot.editMessageText('✅Yaxshi arizangiz qabul qilindi aloqada qoling'+txt+'\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
-                chat_id: chatId,
-                message_id: msgId,
-                parse_mode: 'markdown',
-                reply_markup: home
-            });
-        }, 1000);
+        await search(chatId);
+    }
+    else if(dat == 'accepted'){
+        let userId = data.split('-')[0]
+        bot.answerCallbackQuery(msg.id,{show_alert: true, text: "Bizning xizmatlardan foydalanganingiz uchun tashakkur😊"})
+        bot.deleteMessage(chatId, msgId);
+        bot.sendMessage(userId, "‼️ Haydovchi kelishuv amalga oshganini tasdiqladi!\n*Siz ham tasdiqlaysizmi?*",{
+            parse_mode: 'markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{text: "✅ Tasdiqlayman", callback_data: 'confirm=passager'}],
+                    [{text: "❌ Kelishuv amalga oshmadi", callback_data: 'cancel='+data}]
+
+                ]
+            }
+        });
+    }
+    else if(dat == 'rejected' || dat == 'cancel'){
+        let userId = data.split('-')[0];
+        let userId2 = data.split('-')[1];
+
+        let count = (await orders(userId2))[0].count;
+        await updateOrder(userId2, {count: count+1});
+
+        await updateOrder(userId, {status: 'pending'});
+        bot.answerCallbackQuery(msg.id,{show_alert: true, text: "⛔️ Kelishuv amalga oshmaganidan afsusdamiz😔 Sizga boshqa yo\'ovchi qidiryabmiz\n\n🔎 *Yo\'lovchi izlash* tugmasini bosish orqali o\'zingiz topishingiz mumkin"})
+        bot.deleteMessage(chatId, msgId);
+    }
+    else if (dat == 'accept'){
+        let userId = data.split('-')[0];
+        bot.answerCallbackQuery(msg.id,{show_alert: true, text: "Bizning xizmatlardan foydalanganingiz uchun tashakkur😊"})
+        bot.deleteMessage(chatId, msgId);
+        
+        bot.sendMessage(userId, "‼️ Yo'lovchi kelishuv amalga oshganini tasdiqladi!\n*Siz ham tasdiqlaysizmi?*",{
+            parse_mode: 'markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{text: "✅ Tasdiqlayman", callback_data: 'confirm=driver'}],
+                    [{text: "❌ Kelishuv amalga oshmadi", callback_data: 'cancel_ps='+data}]
+                ]
+            }
+        });
+    } else if(dat == 'reject' || dat == 'cancel_ps'){
+        let userId = data.split('-')[0];
+        let userId2 = data.split('-')[1];
+
+        let count = (await orders(userId))[0].count;
+        await updateOrder(userId, {count: count+1})
+        await updateOrder(userId2, {status: 'pending'})
+        bot.answerCallbackQuery(msg.id,{show_alert: true, text: "⛔️ Kelishuv amalga oshmaganidan afsusdamiz😔 Sizga boshqa haydovchi qidiryabmiz\n\n🔎 *Haydovchi izlash* tugmasini bosish orqali o\'zingiz topishingiz mumkin"})
+        bot.deleteMessage(chatId, msgId);
+    }
+    else if(dat == 'confirm' && data == 'driver'){
+        bot.answerCallbackQuery(msg.id,{show_alert: true, text: "Bizning xizmatlardan foydalanganingiz uchun tashakkur😊"})
+        bot.deleteMessage(chatId, msgId);
+    }
+    else if(dat == 'confirm' && data == 'passager'){
+        bot.answerCallbackQuery(msg.id,{show_alert: true, text: "Bizning xizmatlardan foydalanganingiz uchun tashakkur😊"})
+        bot.deleteMessage(chatId, msgId);
     }
 });
 
@@ -216,24 +282,35 @@ async function search(userId){
             order[0]?.date == el?.date && 
             order[0]?.time == el?.time && 
             el?.roole == 'passager' && 
-            order[0]?.roole != 'passager'  &&   
+            order[0]?.roole != 'passager' &&   
             el?.status == 'pending'   
         ){
             return el;
         }
     });
     if(res[0]?.roole == 'driver') {
-        let user = await oRun(order[0].user_id)
+        let user = await oRun(order[0].user_id);
+        let count = (await orders(res[0].user_id))[0].count;
+        await updateOrder(res[0].user_id, {count: count-1});
+        await updateOrder(order[0].user_id, {status: 'accepted'});
         bot.sendMessage(res[0].user_id, `🚕 Yo'lovchi topildi u bilan bog'laning\n\n🚩 *${user.from_city} ➡️ ${user.from_district}dan*\n🏁 *${user.to_city} ➡️ ${user.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${user.user_id})\n📞 *Telelefon raqami:* \`${user.phone}\``,{
             parse_mode: 'markdown',
             reply_markup: {
                 inline_keyboard: [
-                    [{text: '🤝Kelishuv amalga oshdi✅', callback_data: 'accepted='+user.user_id}],
-                    [{text: '🤝Kelishuv amalga oshmadi❌', callback_data: 'rejected='+user.user_id}]
+                    [{text: '🤝Kelishuv amalga oshdi✅', callback_data: 'accepted='+user.user_id+'-'+res[0].user_id}],
+                    [{text: '🤝Kelishuv amalga oshmadi❌', callback_data: 'rejected='+user.user_id+'-'+res[0].user_id}]
                 ]
             }
         })
-        return {id: res[0].user_id, txt: `🚕 Haydovchi topildi 👇\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${res[0].user_id})\n📞 *Telelefon raqami:* \`${res[0].phone}\``}
+        bot.sendMessage(order[0].user_id, `🚕 Haydovchi topildi 👇\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${res[0].user_id})\n📞 *Telelefon raqami:* \`${res[0].phone}\``,{
+            parse_mode: 'markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{text: '🤝Kelishuv amalga oshdi✅', callback_data: 'accept='+res[0].user_id+'-'+user.user_id}],
+                    [{text: '🤝Kelishuv amalga oshmadi❌', callback_data: 'reject='+res[0].user_id+'-'+user.user_id}]
+                ]
+            }
+        })
     }else {
         let response = await renderPassager(res,order[0]);
         return {txt: response}
@@ -241,21 +318,32 @@ async function search(userId){
 }
 
 async function renderPassager (array,obj){
-    let txt = '';
-    array.splice(4);
-    let ress = await render(array);
-    ress.forEach(async ress => {
+    let count = (await orders(obj.user_id))[0].count;
+    array.splice(count);
+    let ress = await render(array); 
+    ress.forEach(async (ress, index) => {
+        count--
         bot.sendMessage(ress.user_id, `🚕 Haydovchi topildi u bilan bog'laning\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${obj.user_id})\n📞 *Telelefon raqami:* \`${obj.phone}\``,{
             parse_mode: 'markdown',
             reply_markup: {
                 inline_keyboard: [
-                    [{text: '🤝Kelishuv amalga oshdi✅', callback_data: 'accept='+obj.user_id}],
-                    [{text: '🤝Kelishuv amalga oshmadi❌', callback_data: 'reject='+obj.user_id}]
+                    [{text: '🤝Kelishuv amalga oshdi✅', callback_data: 'accept='+obj.user_id+'-'+ress.user_id}],
+                    [{text: '🤝Kelishuv amalga oshmadi❌', callback_data: 'reject='+obj.user_id+'-'+ress.user_id}]
                 ]
             }
         });
-        txt+=`\n\n🚶‍♂️ Yo'lovchi topildi 👇\n🚩 *${ress.from_city} ➡️ ${ress.from_district}dan*\n🏁 *${ress.to_city} ➡️ ${ress.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${ress.user_id})\n📞 *Telelefon raqami:* \`${ress.phone}\``})  
-    return txt;
+
+        bot.sendMessage(obj.user_id, 1+index+`-yo'lovchi topildi 👇\n🚩 *${ress.from_city} ➡️ ${ress.from_district}dan*\n🏁 *${ress.to_city} ➡️ ${ress.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${ress.user_id})\n📞 *Telelefon raqami:* \`${ress.phone}\``,{
+            parse_mode: 'markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{text: '🤝Kelishuv amalga oshdi✅', callback_data: 'accepted='+ress.user_id+'-'+obj.user_id}],
+                    [{text: '🤝Kelishuv amalga oshmadi❌', callback_data: 'rejected='+ress.user_id+'-'+obj.user_id}]
+                ]
+            }
+        });
+        updateOrder(obj.user_id, {count: count});
+    });
 }
 
 

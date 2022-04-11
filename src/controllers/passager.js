@@ -73,7 +73,7 @@ module.exports = async(bot, msg) => {
         steep.push('tel');
         await updateUsers(chatId, {steep: steep});
         bot.deleteMessage(chatId, msgId)
-        bot.sendMessage(chatId,'☎️ Telefon raqamingizni yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
+        bot.sendMessage(chatId,'☎️ Telefon raqamingizni 998901234567 shaklida to\'g\'ri yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
             parse_mode: 'html',
             reply_markup: {
                 resize_keyboard: true,

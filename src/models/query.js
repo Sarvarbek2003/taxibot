@@ -35,6 +35,10 @@ const updateUsers = async (userId, obj) => {
         await data(`
             update users set is_driver = $2, is_passager = $3 where user_id = $1
         `,userId, is_dr, is_pas);
+    } else if(obj.phone){
+        await data(`
+            update users set phone = $2 where user_id = $1
+        `,userId, obj.phone)
     }
     
 }
@@ -98,6 +102,11 @@ const updateOrder = async(userId,obj) => {
             update orders set status = $2 where user_id = $1
         `,userId, obj.status);
     }
+    else if(obj.count || obj.count == 0){
+        await data(`
+            update orders set count = $2 where user_id = $1
+        `,userId, +obj.count);
+    }
 }
 
 const order = async(userId) => {
@@ -109,6 +118,7 @@ const order = async(userId) => {
             d.district_name as to_district,
             o.time,
             o.date,
+            o.user_id,
             o.phone
         from orders as o
         left join city as c on o.to_city = c.city_id::varchar
@@ -116,7 +126,7 @@ const order = async(userId) => {
         left join district as d on o.to_district = d.district_id::varchar 
         left join district as d1 on o.from_district = d1.district_id::varchar
         where o.user_id = $1
-        group by o.user_id, c.city_name, c1.city_name, d.district_name, d1.district_name, o.time, o.date, o.phone
+        group by o.user_id, c.city_name, c1.city_name, d.district_name, d1.district_name, o.time, o.date, o.phone, o.user_id
     `,userId);
     return res[0]
 }

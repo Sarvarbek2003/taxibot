@@ -96,11 +96,28 @@ module.exports = async(bot, msg) => {
             message_id: msgId,
             reply_markup: obj.cit
         });
-    }else if(dat == 'okok'){
+    }
+    else if(dat == 'okok'){
+        bot.editMessageText("Nechta odam olasiz tanlang!",{
+            chat_id: chatId,
+            message_id: msgId,
+            parse_mode: 'markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{text: '1️⃣', callback_data: 'count=1'}],
+                    [{text: '2️⃣', callback_data: 'count=2'}],
+                    [{text: '3️⃣', callback_data: 'count=3'}],
+                    [{text: '4️⃣', callback_data: 'count=4'}]
+                ]
+            }
+        })
+    }
+    else if(dat == 'count'){
         steep.push('tel');
         await updateUsers(chatId, {steep: steep});
-        bot.deleteMessage(chatId, msgId)
-        bot.sendMessage(chatId,'☎️ Telefon raqamingizni yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
+        await updateOrder(chatId, {count: data});
+        bot.deleteMessage(chatId, msgId);
+        bot.sendMessage(chatId,'☎️ Telefon raqamingizni 998901234567 shaklida to\'g\'ri yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
             parse_mode: 'html',
             reply_markup: {
                 resize_keyboard: true,
@@ -137,7 +154,6 @@ async function button (kluch,data,st,arr) {
         city.map( cit => {
             if(data == cit.city_id ) array.push([{text:'🚩'+ cit.district_name, callback_data: 'date_dr='+cit.district_id}]);
         });
-        array.push([{text: '✅ Tasdiqlash', callback_data: 'ok=ok'}]);
         array.push([{text: '🔙 Ortga', callback_data: 'roole=cancel'}]);
     }
     return {cit_name:cit_name, cit:{ inline_keyboard: array }}
