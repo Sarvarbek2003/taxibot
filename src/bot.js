@@ -55,9 +55,10 @@ bot.on('text', async msg => {
         bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
         await updateOrder(msg.chat.id,{tel: text});
         await updateUsers(msg.chat.id, {phone: text})
+        let order = await orders(chatId);
         bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
             parse_mode: 'markdown',
-            reply_markup: home
+            reply_markup: order[0].roole == 'driver'? homedr : home
         });
         await search(chatId);
     }
@@ -74,9 +75,10 @@ bot.on('contact', async msg => {
     bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
     await updateOrder(msg.chat.id,{tel: msg.contact.phone_number});
     await updateUsers(msg.chat.id, {phone: msg.contact.phone_number})
+    let order = await orders(chatId);
     bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
         parse_mode: 'markdown',
-        reply_markup: home
+        reply_markup: order[0].roole == 'driver' ? homedr: home
     });
     await search(chatId);
 });                     
@@ -143,7 +145,8 @@ bot.on('callback_query', async msg => {
         })
     }
     else if(dat == 'search'){
-        await search(chatId);
+        let res = await search(chatId);
+        if(!res) bot.answerCallbackQuery(msg.id,{text: "❌ Topilmadi"})
     }
     else if(dat == 'accepted'){
         let userId = data.split('-')[0]
@@ -311,13 +314,15 @@ async function search(userId){
                 ]
             }
         })
-    }else {
-        let response = await renderPassager(res,order[0]);
-        return {txt: response}
+        return true
+    } else {
+        let ret = await renderPassager(res,order[0]);
+        return ret;
     }
 }
 
 async function renderPassager (array,obj){
+    if (!array.length) return false;
     let count = (await orders(obj.user_id))[0].count;
     array.splice(count);
     let ress = await render(array); 
@@ -344,6 +349,7 @@ async function renderPassager (array,obj){
         });
         updateOrder(obj.user_id, {count: count});
     });
+    return true
 }
 
 
