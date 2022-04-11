@@ -63,8 +63,8 @@ const home = {
 
 const homedr = {
     inline_keyboard: [
-        [{text: '🔎 Yo\'lovchi izlash', callback_data: 'search=driver'}],
-        [{text: '🖌 Buyurmani o`zgartirish', callback_data: 'updateorder=update'}, {text: '✂️ Buyurtmani bekor qilish', callback_data:'cancelOrder=cancel'}]
+        [{text: '🔎 Yo\'lovchi izlash', callback_data: 'search=pass'}],
+        [{text: '🖌 Buyurmani o`zgartirish', callback_data: 'updateorder=driver'}, {text: '✂️ Buyurtmani bekor qilish', callback_data:'cancelOrder=cancel'}]
     ]
 }
 

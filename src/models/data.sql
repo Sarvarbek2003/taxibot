@@ -26,7 +26,7 @@ create table orders(
     order_id serial,
     roole varchar(20),
     price varchar(10),
-    count smallint default 4,
+    count smallint check( count in (0,1,2,3,4)) default 4,
     status varchar(20) default 'pending',
     user_id bigint,
     from_city varchar(50),    

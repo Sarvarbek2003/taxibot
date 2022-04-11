@@ -1,4 +1,4 @@
-const token = '5205144910:AAH7o6gumaqeWitfOih-bAizaQG6mLVKP0k';
+const token = '1947116926:AAGyhdQWoNPanOqva6Qq78lanHtkUpNFQk8';
 const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(token,{polling: true});
 
@@ -27,18 +27,18 @@ bot.on('text', async msg => {
     let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
     if(text == '/start'){
         kl = true;
-        // await deleteOrder(chatId);
-        bot.sendMessage(chatId, 'Assalomualekum',{reply_markup: {remove_keyboard: true,}});
+        await deleteOrder(chatId);
+        bot.sendMessage(chatId, '👋 Assalomualekum Taxi xizmati botiga xush kelibsiz\n\n🚕 Siz bu bot orqali viloyatlar aro taxi xizmatiga buyurtma berishingiz mumkin\n\n🚶‍♂️ Agar siz taxis bo\'lsangiz yo\'lovchi topishingiz mumkin',{reply_markup: {remove_keyboard: true}});
         let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
         if(!steep) await insertUser(chatId,['home']);
         else await updateUsers(chatId, {steep: ['home']});
-        bot.sendMessage(chatId, 'Taxi xizmati botiga xush kelibsiz\n\nSiz bu bot orqali viloyatlar aro taxi xizmatiga buyurtma berishingiz mumkin\n\nAgar siz taxis bo\'lsangiz yo\'lovchi topishingiz mumkin\n\n<b>Siz kimsiz?</b>',{
+        bot.sendMessage(chatId, '<b>Siz kimsiz ⁉️</b>',{
             parse_mode: 'html',
             reply_markup: roole
         });
     }else if(steep[steep.length-1] == 'tel'){
         if (!/^998(9[012345789]|3[3]|7[1]|8[8])[0-9]{7}$/.test(text)) {
-            return bot.sendMessage(chatId,'☎️ Telefon raqamingizni 998901234567 shaklida to\'g\'ri yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
+            return bot.sendMessage(chatId,'☎️ Telefon raqamingizni <b>998901234567</b> shaklida to\'g\'ri yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
                 parse_mode: 'html',
                 reply_markup: {
                     resize_keyboard: true,
@@ -58,7 +58,7 @@ bot.on('text', async msg => {
         let order = await orders(chatId);
         bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
             parse_mode: 'markdown',
-            reply_markup: order[0].roole == 'driver'? homedr : home
+            reply_markup: order[0]?.roole == 'driver'? homedr : home
         });
         await search(chatId);
     }
@@ -78,7 +78,7 @@ bot.on('contact', async msg => {
     let order = await orders(chatId);
     bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
         parse_mode: 'markdown',
-        reply_markup: order[0].roole == 'driver' ? homedr : home
+        reply_markup: order[0]?.roole == 'driver' ? homedr : home
     });
     await search(chatId);
 });                     
@@ -92,7 +92,7 @@ bot.on('callback_query', async msg => {
     let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
     let st = steep[steep.length - 1];
     if(steep[0] == 'home'){
-        if(data == 'passager' || steep[1] == 'passager' || dat == 'updateorder'){
+        if(data == 'passager' || steep[1] == 'passager' || (dat == 'updateorder' && data == 'update')){
             passager(bot, msg);
             if(kl) bot.deleteMessage(chatId, msg.message.message_id-1); kl = false;
             let order = (await orders(chatId));
@@ -274,7 +274,8 @@ async function search(userId){
             order[0]?.time == el?.time && 
             el?.roole == 'driver' && 
             order[0]?.roole != 'driver' && 
-            el?.status == 'pending'
+            el?.status == 'pending' && 
+            el.count != 0 
         ){
             return el;
         } else if(

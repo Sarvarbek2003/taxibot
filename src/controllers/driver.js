@@ -1,5 +1,5 @@
 const { selctUsers, selectCity, updateUsers, updateOrder, order, orders } = require('../models/query.js');
-const { date, time, cancel } = require('../menu');
+const { date, time } = require('../menu');
 
 module.exports = async(bot, msg) => {
     let chatId = msg.from.id;
@@ -117,7 +117,7 @@ module.exports = async(bot, msg) => {
         await updateUsers(chatId, {steep: steep});
         await updateOrder(chatId, {count: data});
         bot.deleteMessage(chatId, msgId);
-        bot.sendMessage(chatId,'☎️ Telefon raqamingizni 998901234567 shaklida to\'g\'ri yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
+        bot.sendMessage(chatId,'☎️ Telefon raqamingizni <b>998901234567</b> shaklida to\'g\'ri yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
             parse_mode: 'html',
             reply_markup: {
                 resize_keyboard: true,
