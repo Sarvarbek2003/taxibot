@@ -38,14 +38,21 @@ bot.on('text', async msg => {
             parse_mode: 'html',
             reply_markup: roole
         });
-    }else if(steep[steep.length-1] == 'tel'){
-        if (!/^998(9[012345789]|3[3]|7[1]|8[8])[0-9]{7}$/.test(text)) {
-            return bot.sendMessage(chatId,'☎️ Telefon raqamingizni <b>998901234567</b> shaklida to\'g\'ri yozing yoki pastagi tugamadan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan haydovchi bog`lanishi uchun kerak</b>',{
+    }
+    if(text == '🔙 Ortga'){
+        await updateUsers(chatId, {steep: ['admin']})
+        bot.sendMessage(chatId, 'Bosh sahifa',{
+            reply_markup: admin
+        })
+    }
+    else if(steep[steep.length-1] == 'tel'){
+        if (!/^\+998(9[012345789]|3[3]|7[1]|8[8])[0-9]{7}$/.test(text)) {
+            return bot.sendMessage(chatId,'☎️ Telefon raqamingizni +998901234567 shaklida to\'g\'ri yozing yoki pastagi <b>📞 Telefon raqam yuborish</b>  tugamasidan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan mijoz bog`lanishi uchun kerak</b>',{
                 parse_mode: 'html',
                 reply_markup: {
                     resize_keyboard: true,
                     keyboard: [
-                        [{text: '📞 Telefon raqam', request_contact: true}]
+                        [{text: '📞 Telefon raqam yuborish', request_contact: true}]
                     ]
                 }
             });
@@ -71,7 +78,7 @@ bot.on('text', async msg => {
             });
         } 
         adminPanel.textPanel(bot, msg)
-    }
+    } 
 
 });
 
@@ -91,7 +98,11 @@ bot.on('contact', async msg => {
         reply_markup: order[0]?.roole == 'driver' ? homedr : home
     });
     await search(chatId);
-});                     
+});      
+
+bot.on('photo',async msg => {
+    adminPanel.textPanel(bot,msg)
+});
 
 bot.on('callback_query', async msg => {
     let chatId = msg.from.id;
@@ -124,7 +135,7 @@ bot.on('callback_query', async msg => {
         steep.splice(1);
         await deleteOrder(chatId);
         await updateUsers(chatId, {steep: steep});
-        bot.editMessageText('Assalomualekum taxi xizmati botiga xush kelibsiz\n\nSiz bu bot orqali viloyatlar aro taxi xizmatiga buyurtma berishingiz mumkin\n\nAgar siz taxis bo\'lsangiz yo\'lovchi topishingiz mumkin\n\n<b>Siz kimsiz?</b>',{
+        bot.editMessageText('👋 Assalomualekum Taxi xizmati botiga xush kelibsiz\n\n🚕 Siz bu bot orqali viloyatlar aro taxi xizmatiga buyurtma berishingiz mumkin\n\n🚶‍♂️ Agar siz taxis bo\'lsangiz yo\'lovchi topishingiz mumkin\n\n<b>Siz kimsiz?</b>',{
             chat_id: chatId,
             message_id: msgId,
             parse_mode: 'html',
@@ -319,7 +330,7 @@ async function search(userId){
         let count = (await orders(res[0].user_id))[0].count;
         await updateOrder(res[0].user_id, {count: count-1});
         await updateOrder(order[0].user_id, {status: 'accepted'});
-        bot.sendMessage(res[0].user_id, `🚕 Yo'lovchi topildi u bilan bog'laning\n\n🚩 *${user.from_city} ➡️ ${user.from_district}dan*\n🏁 *${user.to_city} ➡️ ${user.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${user.user_id})\n📞 *Telelefon raqami:* \`${user.phone}\``,{
+        bot.sendMessage(res[0].user_id, `🚕 Yo'lovchi topildi u bilan bog'laning\n\n🚩 *${user.from_city} ➡️ ${user.from_district}dan*\n🏁 *${user.to_city} ➡️ ${user.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${user.user_id})\n📞 *Telelefon raqami:* ${user.phone}`,{
             parse_mode: 'markdown',
             reply_markup: {
                 inline_keyboard: [
@@ -328,7 +339,7 @@ async function search(userId){
                 ]
             }
         })
-        bot.sendMessage(order[0].user_id, `🚕 Haydovchi topildi 👇\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${res[0].user_id})\n📞 *Telelefon raqami:* \`${res[0].phone}\``,{
+        bot.sendMessage(order[0].user_id, `🚕 Haydovchi topildi 👇\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${res[0].user_id})\n📞 *Telelefon raqami:* ${res[0].phone}`,{
             parse_mode: 'markdown',
             reply_markup: {
                 inline_keyboard: [
@@ -351,7 +362,7 @@ async function renderPassager (array,obj){
     let ress = await render(array); 
     ress.forEach(async (ress, index) => {
         count--
-        bot.sendMessage(ress.user_id, `🚕 Haydovchi topildi u bilan bog'laning\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${obj.user_id})\n📞 *Telelefon raqami:* \`${obj.phone}\``,{
+        bot.sendMessage(ress.user_id, `🚕 Haydovchi topildi u bilan bog'laning\n\n📨* Telegram orqali:* [Bog'lanish](tg://user?id=${obj.user_id})\n📞 *Telelefon raqami:* ${obj.phone}`,{
             parse_mode: 'markdown',
             reply_markup: {
                 inline_keyboard: [
@@ -361,7 +372,7 @@ async function renderPassager (array,obj){
             }
         });
 
-        bot.sendMessage(obj.user_id, 1+index+`-yo'lovchi topildi 👇\n🚩 *${ress.from_city} ➡️ ${ress.from_district}dan*\n🏁 *${ress.to_city} ➡️ ${ress.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${ress.user_id})\n📞 *Telelefon raqami:* \`${ress.phone}\``,{
+        bot.sendMessage(obj.user_id, 1+index+`-yo'lovchi topildi 👇\n🚩 *${ress.from_city} ➡️ ${ress.from_district}dan*\n🏁 *${ress.to_city} ➡️ ${ress.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${ress.user_id})\n📞 *Telelefon raqami:* ${ress.phone}`,{
             parse_mode: 'markdown',
             reply_markup: {
                 inline_keyboard: [

@@ -6,9 +6,15 @@ const admin = {
         [{text: '🔝 Admin qo\'shish'},{text: '➖ Admin o\'chirish'}],
         [{text: '🚖 Haydovchilarga xabar'},{text: '🏃 Yo\'lovchilarga xabar'}],
         [{text: '📨 Forward xabar'},{text: '📨 Barchaga xabar'}],
-        [{text: '📊 Statistika '}]
+        [{text: '📊 Statistika'}]
     ]
 } 
+const send = { 
+    resize_keyboard: true,
+    keyboard: [
+        [{text: "💬 Matinli xabar"},{text:"🖼 Rasmli xabar"}]
+    ]
+}
 
 const date = {
     inline_keyboard: [
@@ -89,6 +95,7 @@ module.exports = {
     admin,
     roole,
     date,
+    send,
     home,
     time
 }

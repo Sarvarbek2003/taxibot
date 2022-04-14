@@ -25,7 +25,7 @@ create table city(
 
 create table district(
     district_id serial,
-    city_id int references city(city_id),
+    city_id int references city(city_id) on delete cascade,
     district_name varchar(50)
 );
 

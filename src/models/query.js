@@ -29,17 +29,25 @@ const selectAdmin = async () => {
 
 const insertAdmin = async (obj) => {
     if(obj.city_name){
-        await data(`
-            insert into city (city_name) values ($1)
+        let res = await data(`
+            insert into city (city_name) values ($1) returning *
         `,obj.city_name);
+        return res
     }else if (obj.dist){
-        await data(`
-            insert into district (city_id, district_name) values ($1,$2)
-        `,obj.dist.city_id, obj.dist.dist_id);
+        let res = await data(`
+            insert into district (city_id, district_name) values ($1,$2) returning *
+        `,obj.dist.city_id, obj.dist.dist_name);
+        return res
     }else if(obj.addAdmin){
-        await data(`
-            insert into admins (user_id) values ($1)
+        let res = await data(`
+            insert into admins (user_id) values ($1) returning *
         `, obj.addAdmin)
+        return res
+    }else if (obj.deladmin){
+        let res = await data(`
+            delete from admins where user_id = $1 returning *
+        `, obj.deladmin);
+        return res
     }
 }
 
@@ -58,8 +66,6 @@ const deleteCity = async (obj) => {
         `, obj.dist_id);
     }
 }
-
-
 
 
 
