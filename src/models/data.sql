@@ -10,6 +10,13 @@ create table users(
     created_at timestamp with time zone default current_timestamp
 );
 
+create table admins ( 
+	admin_id serial,
+	user_id bigint references users(user_id),
+    roole varchar(5) check( roole in ('root', 'admin')) default 'admin',
+    created_at timestamp with time zone default current_timestamp
+);
+	
 
 create table city(  
     city_id serial primary key,
@@ -130,3 +137,8 @@ left join district as d on o.to_district = d.district_id
 left join district as d1 on o.from_district = d1.district_id
 where o.user_id = 1228852253
 group by o.user_id, c.city_name, c1.city_name, d.district_name, d1.district_name, o.time, o.date, o.phone;
+
+insert into (user_id) values ('1228852253');
+
+
+-- https://t.me/andijon_toshkent_andijontaksi

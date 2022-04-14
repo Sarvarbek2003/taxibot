@@ -1,8 +1,12 @@
-const menu = {
+const admin = {
     resize_keyboard: true,
     keyboard: [
-        [{text: '🚖 Haydovchi'},{text: '🏃 Yo\'lovchi'}],
-        [{text: '🤖 Bot haqida'},{text: '👨‍💻 Dasturchi'}],
+        [{text: '➕ Viloyat qo\'shish'},{text: '➕ Shaxar qo\'shish'}],
+        [{text: '➖ Viloyat o\'chirish'},{text: '➖ Shaxar o\'chirish'}],
+        [{text: '🔝 Admin qo\'shish'},{text: '➖ Admin o\'chirish'}],
+        [{text: '🚖 Haydovchilarga xabar'},{text: '🏃 Yo\'lovchilarga xabar'}],
+        [{text: '📨 Forward xabar'},{text: '📨 Barchaga xabar'}],
+        [{text: '📊 Statistika '}]
     ]
 } 
 
@@ -82,8 +86,8 @@ module.exports = {
     cancel,
     homedr,
     order,
+    admin,
     roole,
-    menu,
     date,
     home,
     time

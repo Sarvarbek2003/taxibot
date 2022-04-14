@@ -18,7 +18,52 @@ const insertUser = async (userId,steep) => {
     return res
 }
 
+///////////////// admin ////////////////////////
 
+const selectAdmin = async () => {
+    let res = await data(`
+        select * from admins
+    `);
+    return res;
+}
+
+const insertAdmin = async (obj) => {
+    if(obj.city_name){
+        await data(`
+            insert into city (city_name) values ($1)
+        `,obj.city_name);
+    }else if (obj.dist){
+        await data(`
+            insert into district (city_id, district_name) values ($1,$2)
+        `,obj.dist.city_id, obj.dist.dist_id);
+    }else if(obj.addAdmin){
+        await data(`
+            insert into admins (user_id) values ($1)
+        `, obj.addAdmin)
+    }
+}
+
+const deleteCity = async (obj) => {
+    if(obj.city_id){
+        await data(`
+            delete from city where city_id = $1
+        `, obj.city_id);
+        let res = await data('select * from district where city_id = $1',obj.city_id);
+        res.map(async el => {
+            await data('delete from district where city_id = $1', el.city_id);
+        });
+    }else if(obj.dist_id){
+        await data(`
+            delete from district where district_id = $1
+        `, obj.dist_id);
+    }
+}
+
+
+
+
+
+////////////////////////////////////////////
 const updateUsers = async (userId, obj) => {
     if(obj.steep){
         let steep = obj.steep.join(' ');
@@ -160,7 +205,10 @@ module.exports = {
     deleteOrder,
     orderSearch,
     updateOrder,
+    selectAdmin,
+    insertAdmin,
     selctUsers, 
+    deleteCity,
     insertUser,
     selectCity,
     orders,

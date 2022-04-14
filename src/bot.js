@@ -1,17 +1,19 @@
-const token = '5205144910:AAH7o6gumaqeWitfOih-bAizaQG6mLVKP0k';
+const token = '1947116926:AAGyhdQWoNPanOqva6Qq78lanHtkUpNFQk8';
 const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(token,{polling: true});
 
 const passager = require('./controllers/passager.js');
+const adminPanel = require('./controllers/admin.js');
 const driver = require('./controllers/driver.js');
 
-const { roole, home, homedr } = require('./menu.js');
+const { roole, home, homedr, admin } = require('./menu.js');
 const { selctUsers, 
         updateUsers, 
         insertOrder, 
         updateOrder, 
         deleteOrder,
         orderSearch, 
+        selectAdmin,
         insertUser, 
         selectCity,
         orders, 
@@ -25,11 +27,11 @@ bot.on('text', async msg => {
     const chatId = msg.chat.id;
     const text = msg.text;
     let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
+    let adminId = (await selectAdmin()).find(user => user.user_id == chatId)?.user_id;
     if(text == '/start'){
         kl = true;
         await deleteOrder(chatId);
         bot.sendMessage(chatId, '👋 Assalomualekum Taxi xizmati botiga xush kelibsiz\n\n🚕 Siz bu bot orqali viloyatlar aro taxi xizmatiga buyurtma berishingiz mumkin\n\n🚶‍♂️ Agar siz taxis bo\'lsangiz yo\'lovchi topishingiz mumkin',{reply_markup: {remove_keyboard: true}});
-        let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
         if(!steep) await insertUser(chatId,['home']);
         else await updateUsers(chatId, {steep: ['home']});
         bot.sendMessage(chatId, '<b>Siz kimsiz ⁉️</b>',{
@@ -61,6 +63,14 @@ bot.on('text', async msg => {
             reply_markup: order[0]?.roole == 'driver'? homedr : home
         });
         await search(chatId);
+    } else if ((text == "/admin" && chatId == adminId) || (steep[0] == 'admin') ) {
+        if(steep[0] =! 'admin' || text == '/admin'){
+            await updateUsers(chatId,{steep: ['admin']});
+            bot.sendMessage(chatId, "🔝 Assalomualekum admin panelga xush kelibsiz",{
+                reply_markup: admin
+            });
+        } 
+        adminPanel.textPanel(bot, msg)
     }
 
 });
@@ -205,6 +215,18 @@ bot.on('callback_query', async msg => {
     else if(dat == 'confirm' && data == 'passager'){
         bot.answerCallbackQuery(msg.id,{show_alert: true, text: "Bizning xizmatlardan foydalanganingiz uchun tashakkur😊"})
         bot.deleteMessage(chatId, msgId);
+    }
+    else if(dat == 'deleteCity'){
+        adminPanel.inlinePanel(bot, msg);
+    }
+    else if(dat == 'deleteDist'){
+        adminPanel.inlinePanel(bot, msg);
+    }
+    else if(dat == 'city'){
+        adminPanel.inlinePanel(bot, msg);
+    }
+    else if(dat == 'delete' || dat == 'deleteDstr'){
+        adminPanel.inlinePanel(bot, msg);
     }
 });
 
