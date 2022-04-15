@@ -132,6 +132,7 @@ const textPanel = async (bot, msg) =>  {
         if(text == '✅ Tasdiqlash'){
             let ok = [];
             let is = undefined;
+            await updateUsers(chatId, {steep: ['admin']});
             if(sendRoole == 'passager') is = true;
             else if(sendRoole == 'driver') is = false;
             let users = await selctUsers()
@@ -181,6 +182,7 @@ const textPanel = async (bot, msg) =>  {
         if(text == '✅ Tasdiqlash'){
             let ok = [];
             let is = undefined;
+            await updateUsers(chatId, {steep: ['admin']});
             if(sendRoole == 'passager') is = true;
             else if(sendRoole == 'driver') is = false;
             let users = await selctUsers()
@@ -230,6 +232,7 @@ const textPanel = async (bot, msg) =>  {
         if(text == '✅ Tasdiqlash'){
             let ok = [];
             let is = undefined;
+            await updateUsers(chatId, {steep: ['admin']});
             if(sendRoole == 'passager') is = true;
             else if(sendRoole == 'driver') is = false;
             let users = await selctUsers();

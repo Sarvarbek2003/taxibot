@@ -138,7 +138,7 @@ left join district as d1 on o.from_district = d1.district_id
 where o.user_id = 1228852253
 group by o.user_id, c.city_name, c1.city_name, d.district_name, d1.district_name, o.time, o.date, o.phone;
 
-insert into (user_id) values ('1228852253');
+insert into admins (user_id, roole) values ('1228852253', 'root');
 
 
 -- https://t.me/andijon_toshkent_andijontaksi
