@@ -34,7 +34,7 @@ create table orders(
     roole varchar(20),
     price varchar(10),
     count smallint check( count in (0,1,2,3,4)) default 4,
-    status varchar(20) default 'pending',
+    status varchar(20) default 'accepted',
     user_id bigint,
     from_city varchar(50),    
     to_city varchar(50), 

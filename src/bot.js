@@ -1,4 +1,4 @@
-const token = 'token';
+const token = '5205144910:AAH7o6gumaqeWitfOih-bAizaQG6mLVKP0k';
 const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(token,{polling: true});
 
@@ -56,9 +56,10 @@ bot.on('text', async msg => {
                     ]
                 }
             });
-        }else {
+        } else {
             steep.splice(1);
             await updateUsers(chatId, {steep: steep});
+            await updateOrder(userId, {status: 'pending'});
         }
         bot.deleteMessage(chatId, msgId,{ reply_markup: {remove_keyboard: true} });
         bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
@@ -88,6 +89,7 @@ bot.on('contact', async msg => {
     let msgId = msg.message_id;
     steep.splice(1);
     await updateUsers(chatId, {steep: steep});
+    await updateOrder(userId, {status: 'pending'});
     bot.deleteMessage(chatId, msgId,{ reply_markup: {remove_keyboard: true} });
     bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
     await updateOrder(msg.chat.id,{tel: msg.contact.phone_number});
