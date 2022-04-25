@@ -89,7 +89,7 @@ bot.on('contact', async msg => {
     let msgId = msg.message_id;
     steep.splice(1);
     await updateUsers(chatId, {steep: steep});
-    await updateOrder(userId, {status: 'pending'});
+    await updateOrder(chatId, {status: 'pending'});
     bot.deleteMessage(chatId, msgId,{ reply_markup: {remove_keyboard: true} });
     bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
     await updateOrder(msg.chat.id,{tel: msg.contact.phone_number});
@@ -97,6 +97,7 @@ bot.on('contact', async msg => {
     let order = await orders(chatId);
     bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
         parse_mode: 'markdown',
+        reply_markup: {remove_keyboard: true},
         reply_markup: order[0]?.roole == 'driver' ? homedr : home
     });
     await search(chatId);
