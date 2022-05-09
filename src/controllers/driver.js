@@ -19,85 +19,92 @@ module.exports = async(bot, msg) => {
             reply_markup: (await button(true)).cit
         }); 
     }
-    else if(dat == 'district'){
-        steep.push(data);
-        await updateUsers(chatId, {steep: steep});
+    // else if(dat == 'district'){
+    //     steep.push(data);
+    //     await updateUsers(chatId, {steep: steep});
+    //     await updateOrder(chatId, {from_city: data});
+    //     bot.editMessageText('🚩 Qaysi tumanlardan odam olasiz?\nBir nechta belgilashingiz mumkin! 👇',{
+    //         chat_id: chatId,
+    //         message_id: msgId,
+    //         reply_markup: (await button(false,data)).cit
+    //     });
+    // }
+    // else if(data == 'districtcancel'){
+    //     await updateOrder(chatId, {from_dist: 'null'})
+    //     bot.editMessageText('🚩 Qaysi tumanlardan odam olasiz?\nBir nechta belgilashingiz mumkin! 👇',{
+    //         chat_id: chatId,
+    //         message_id: msgId,
+    //         reply_markup: (await button(false,st)).cit
+    //     });
+    // }
+    // else if( dat == 'date_dr') {
+    //     let city = (await orders(chatId));
+    //     let dist = (city[0]?.from_district != 'null' && city[0]?.from_district !== null && city.length ) ? city[0].from_district.split('-') : [];
+    //     dist.push(data);
+    //     await updateOrder(chatId, {from_dist: dist.join('-')});
+    //     const obj = await button('id', data, st, dist);
+    //     bot.editMessageText('🚩 Qaysi tumanlardan odam olasiz?\nBir nechta belgilashingiz mumkin! 👇\n'+obj.cit_name,{
+    //         chat_id: chatId,
+    //         message_id: msgId,
+    //         reply_markup: obj.cit
+    //     });
+    // }
+    else if(dat == 'district'){  //ok
         await updateOrder(chatId, {from_city: data});
-        bot.editMessageText('🚩 Qaysi tumanlardan odam olasiz?\nBir nechta belgilashingiz mumkin! 👇',{
-            chat_id: chatId,
-            message_id: msgId,
-            reply_markup: (await button(false,data)).cit
-        });
-    }
-    else if(data == 'districtcancel'){
-        await updateOrder(chatId, {from_dist: 'null'})
-        bot.editMessageText('🚩 Qaysi tumanlardan odam olasiz?\nBir nechta belgilashingiz mumkin! 👇',{
-            chat_id: chatId,
-            message_id: msgId,
-            reply_markup: (await button(false,st)).cit
-        });
-    }
-    else if( dat == 'date_dr') {
-        let city = (await orders(chatId));
-        let dist = (city[0]?.from_district != 'null' && city[0]?.from_district !== null && city.length ) ? city[0].from_district.split('-') : [];
-        dist.push(data);
-        await updateOrder(chatId, {from_dist: dist.join('-')});
-        const obj = await button('id', data, st, dist);
-        bot.editMessageText('🚩 Qaysi tumanlardan odam olasiz?\nBir nechta belgilashingiz mumkin! 👇\n'+obj.cit_name,{
-            chat_id: chatId,
-            message_id: msgId,
-            reply_markup: obj.cit
-        });
-    }else if(dat == 'ok'){
         bot.editMessageText('📆 Ketadigan kuningini belgilang',{
             chat_id: chatId,
             message_id: msgId,
             reply_markup: date
         });
-    }else if(data == 'datecancel'){
+    }else if(dat == 'datecancel'){
         bot.editMessageText('📆 Ketadigan kuningini belgilang',{
             chat_id: chatId,
             message_id: msgId,
             reply_markup: date
         });
-    }else if(dat == 'time' || msg.data == 'tim=cancel'){
-        if(msg.data != 'tim=cancel') await updateOrder(chatId, {date: data})
-        await updateOrder(chatId, {to_district: 'null'})
-        bot.editMessageText('⏰ Ketadigan vaqtingiz oralig\'ini belgilang',{
-            chat_id: chatId,
-            message_id: msgId,
-            reply_markup: time
-        });
-    }else if(dat == 'to_city' || msg.data == 'to_cit=cancel'){
-        if(msg.data != 'to_cit=cancel')await updateOrder(chatId, {time: data})
+    }
+    // else if(dat == 'time' || msg.data == 'tim=cancel'){
+    //     if(msg.data != 'tim=cancel') await updateOrder(chatId, {date: data})
+    //     await updateOrder(chatId, {to_district: 'null'})
+    //     bot.editMessageText('⏰ Ketadigan vaqtingiz oralig\'ini belgilang',{
+    //         chat_id: chatId,
+    //         message_id: msgId,
+    //         reply_markup: time
+    //     });
+    // }
+    else if(dat == 'time' || msg.data == 'to_cit=cancel'){    /// to_cit
+        if(msg.data != 'to_cit=cancel')await updateOrder(chatId, {date: data})
         bot.editMessageText('🏁 Qaysi viloyatga borasiz!',{
             chat_id: chatId,
             message_id: msgId,
             reply_markup: (await button2(true)).cit
         });
-    }else if(dat == 'to_district_dr'){
-        steep.push(data);
-        await updateUsers(chatId, {steep: steep});
-        await updateOrder(chatId, {to_city: data})
-        const obj = await button2(false, data);
-        bot.editMessageText('🏁 Boradigan tumaningizni belgilang!\nBir nechta belgilashingiz mumkin!👇',{
-            chat_id: chatId,
-            message_id: msgId,
-            reply_markup: obj.cit
-        });
-    }else if(dat == 'to_dr'){
-        let city = (await orders(chatId));
-        let dist = (city[0]?.to_district != 'null' && city[0]?.to_district !== null && city.length ) ? city[0].to_district.split('-') : [];
-        dist.push(data);
-        await updateOrder(chatId, {to_district: dist.join('-')});
-        const obj = await button2('id', data, st, dist);
-        bot.editMessageText('🏁 Boradigan tumaningizni belgilang!\nBir nechta belgilashingiz mumkin!👇\n'+obj.cit_name,{
-            chat_id: chatId,
-            message_id: msgId,
-            reply_markup: obj.cit
-        });
     }
-    else if(dat == 'okok'){
+    // else if(dat == 'to_district_dr'){
+    //     steep.push(data);
+    //     await updateUsers(chatId, {steep: steep});
+    //     await updateOrder(chatId, {to_city: data})
+    //     const obj = await button2(false, data);
+    //     bot.editMessageText('🏁 Boradigan tumaningizni belgilang!\nBir nechta belgilashingiz mumkin!👇',{
+    //         chat_id: chatId,
+    //         message_id: msgId,
+    //         reply_markup: obj.cit
+    //     });
+    // }
+    // else if(dat == 'to_dr'){
+    //     let city = (await orders(chatId));
+    //     let dist = (city[0]?.to_district != 'null' && city[0]?.to_district !== null && city.length ) ? city[0].to_district.split('-') : [];
+    //     dist.push(data);
+    //     await updateOrder(chatId, {to_district: dist.join('-')});
+    //     const obj = await button2('id', data, st, dist);
+    //     bot.editMessageText('🏁 Boradigan tumaningizni belgilang!\nBir nechta belgilashingiz mumkin!👇\n'+obj.cit_name,{
+    //         chat_id: chatId,
+    //         message_id: msgId,
+    //         reply_markup: obj.cit
+    //     });
+    // }
+    else if(dat == 'to_district_dr'){   /// okok
+        await updateOrder(chatId, {to_city: data})
         bot.editMessageText("Nechta odam olasiz tanlang!",{
             chat_id: chatId,
             message_id: msgId,
@@ -107,7 +114,8 @@ module.exports = async(bot, msg) => {
                     [{text: '1️⃣', callback_data: 'count=1'}],
                     [{text: '2️⃣', callback_data: 'count=2'}],
                     [{text: '3️⃣', callback_data: 'count=3'}],
-                    [{text: '4️⃣', callback_data: 'count=4'}]
+                    [{text: '4️⃣', callback_data: 'count=4'}],
+                    [{text: '🔙 Ortga', callback_data: 'time=cancel'}]
                 ]
             }
         })
@@ -173,12 +181,12 @@ async function button2 (kluch,data,st,arr) {
             }
         });
         array.push([{text: '✅ Tasdiqlash', callback_data: 'okok=ok'}]);
-        array.push([{text: '🔙 Ortga', callback_data: 'tim=cancel'}]);
+        array.push([{text: '🔙 Ortga', callback_data: 'datecancel=cancel'}]);  /// time
     }else if(kluch) {
         city.map( cit => {
             array.push([{text:'🏁'+ cit.city_name, callback_data: 'to_district_dr='+cit.city_id}]);
         });
-        array.push([{text: '🔙 Ortga', callback_data: 'tim=cancel'}]);
+        array.push([{text: '🔙 Ortga', callback_data: 'datecancel=cancel'}]);  /// time
     } else if (kluch === false) {
         city.map( cit => {
             if(data == cit.city_id ) array.push([{text:'🏁'+ cit.district_name, callback_data: 'to_dr='+cit.district_id}]);

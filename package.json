@@ -1,6 +1,6 @@
 {
   "name": "shopir-bot",
-  "version": "1.0.0",
+  "version": "^1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "dev": "nodemon src/bot.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Sarvarbek-Odilov",
   "license": "ISC",
   "dependencies": {
     "node-telegram-bot-api": "^0.56.0",

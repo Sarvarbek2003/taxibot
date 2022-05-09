@@ -1,4 +1,4 @@
-const token = 'token';
+const token = '5104424433:AAHqSHJWUJvAvGlQV4A4hBMcFarH6DZAPGY';
 const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(token,{polling: true});
 
@@ -28,7 +28,13 @@ bot.on('text', async msg => {
     const text = msg.text;
     let steep = (await selctUsers()).find(user => user.user_id == chatId)?.steep.split(' ');
     let adminId = (await selectAdmin()).find(user => user.user_id == chatId)?.user_id;
-    if(text == '/start'){
+    if(text == '🔙 Ortga'){
+        await updateUsers(chatId, {steep: ['admin']})
+        bot.sendMessage(chatId, 'Bosh sahifa',{
+            reply_markup: admin
+        })
+    }
+    else if(text == '/start'){
         kl = true;
         await deleteOrder(chatId);
         bot.sendMessage(chatId, '👋 Assalomualekum Taxi xizmati botiga xush kelibsiz\n\n🚕 Siz bu bot orqali viloyatlar aro taxi xizmatiga buyurtma berishingiz mumkin\n\n🚶‍♂️ Agar siz taxis bo\'lsangiz yo\'lovchi topishingiz mumkin',{reply_markup: {remove_keyboard: true}});
@@ -38,12 +44,6 @@ bot.on('text', async msg => {
             parse_mode: 'html',
             reply_markup: roole
         });
-    }
-    if(text == '🔙 Ortga'){
-        await updateUsers(chatId, {steep: ['admin']})
-        bot.sendMessage(chatId, 'Bosh sahifa',{
-            reply_markup: admin
-        })
     }
     else if(steep[steep.length-1] == 'tel'){
         if (!/^\+998(9[012345789]|3[3]|7[1]|8[8])[0-9]{7}$/.test(text)) {
@@ -92,10 +92,10 @@ bot.on('contact', async msg => {
     await updateOrder(chatId, {status: 'pending'});
     bot.deleteMessage(chatId, msgId,{ reply_markup: {remove_keyboard: true} });
     bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
-    await updateOrder(msg.chat.id,{tel: msg.contact.phone_number});
-    await updateUsers(msg.chat.id, {phone: msg.contact.phone_number})
+    await updateOrder(chatId,{tel: msg.contact.phone_number});
+    await updateUsers(chatId, {phone: msg.contact.phone_number})
     let order = await orders(chatId);
-    bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng buyurtmani bekor qilishni unutmang',{
+    bot.sendMessage(chatId, '✅Yaxshi arizangiz qabul qilindi aloqada qoling!\n\nKelishuv amalga oshganidan so\'ng tasdiqlashni unutmang',{
         parse_mode: 'markdown',
         reply_markup: {remove_keyboard: true},
         reply_markup: order[0]?.roole == 'driver' ? homedr : home
@@ -260,12 +260,19 @@ async function orderRun(chatId){
     let t = time[o.time];
     let m = d.getMonth().toString();
     let y = d.getFullYear();
-    return `<b>🚩 Qayerdan:</b> ${o.from_city} --> ${o.from_district}\n\n<b>🏁 Qayerga:</b> ${o.to_city} --> ${o.to_district}\n\n<b>📆 Qachon:</b> ${o.date+'/'+m.padStart(2, '0')+'/'+y}\n\n<b>⏰ Soat:</b> ${t} oraliqda\n\n<b>📞 Telefon:</b> ${o.phone}\n\n<i>‼️Siz bilan haydovchi aloqaga chiqadi undan oldin o'zingiz haydovchini topishingiz mumkin uning uchun </i><b>🔎 Haydovchi izlash</b><i>ni bosing</i>`
+    return `<b>🚩 Qayerdan:</b> ${o.from_city}\n\n<b>🏁 Qayerga:</b> ${o.to_city}\n\n<b>📆 Qachon:</b> ${o.date+'/'+m.padStart(2, '0')+'/'+y}\n\n<b>📞 Telefon:</b> ${o.phone}\n\n<i>‼️Siz bilan haydovchi aloqaga chiqadi undan oldin o'zingiz haydovchini topishingiz mumkin uning uchun </i><b>🔎 Haydovchi izlash</b><i>ni bosing</i>`
 } 
 
 async function oRun(chatId){
     let o = await order(chatId);
-    return {to_city: o.to_city, from_city: o.from_city, to_district: o.to_district, from_district: o.from_district, user_id: o.user_id, phone: o.phone}
+    return {
+        to_city: o.to_city, 
+        from_city: o.from_city, 
+        // to_district: o.to_district, 
+        // from_district: o.from_district,
+        user_id: o.user_id, 
+        phone: o.phone
+    }
 } 
 
 async function render(array){
@@ -284,13 +291,13 @@ async function render(array){
                 obj.from_city = el.city_name;
             } 
         });
-        dist.forEach(el => {
-            if (ell.to_district == el.district_id){
-                obj.to_district = el.district_name;
-            } else if(ell.from_district == el.district_id){
-                obj.from_district = el.district_name;
-            }
-        })
+        // dist.forEach(el => {
+        //     if (ell.to_district == el.district_id){
+        //         obj.to_district = el.district_name;
+        //     } else if(ell.from_district == el.district_id){
+        //         obj.from_district = el.district_name;
+        //     }
+        // })
         arr.push(obj);
         obj = {};
     });
@@ -304,10 +311,10 @@ async function search(userId){
     let res = orders1.filter(el => {
         if( order[0]?.from_city == el?.from_city && 
             order[0]?.to_city == el?.to_city && 
-            el?.from_district.includes(order[0]?.from_district) && 
-            el?.to_district.includes(order[0]?.to_district) && 
+            // el?.from_district.includes(order[0]?.from_district) && 
+            // el?.to_district.includes(order[0]?.to_district) && 
             order[0]?.date == el?.date && 
-            order[0]?.time == el?.time && 
+            // order[0]?.time == el?.time && 
             el?.roole == 'driver' && 
             order[0]?.roole != 'driver' && 
             el?.status == 'pending' && 
@@ -317,10 +324,10 @@ async function search(userId){
         } else if(
             order[0]?.from_city == el?.from_city && 
             order[0]?.to_city == el?.to_city && 
-            order[0]?.from_district.includes(el?.from_district) && 
-            order[0]?.to_district.includes(el?.to_district) && 
+            // order[0]?.from_district.includes(el?.from_district) && 
+            // order[0]?.to_district.includes(el?.to_district) && 
             order[0]?.date == el?.date && 
-            order[0]?.time == el?.time && 
+            // order[0]?.time == el?.time && 
             el?.roole == 'passager' && 
             order[0]?.roole != 'passager' &&   
             el?.status == 'pending'   
@@ -333,7 +340,7 @@ async function search(userId){
         let count = (await orders(res[0].user_id))[0].count;
         await updateOrder(res[0].user_id, {count: count-1});
         await updateOrder(order[0].user_id, {status: 'accepted'});
-        bot.sendMessage(res[0].user_id, `🚕 Yo'lovchi topildi u bilan bog'laning\n\n🚩 *${user.from_city} ➡️ ${user.from_district}dan*\n🏁 *${user.to_city} ➡️ ${user.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${user.user_id})\n📞 *Telelefon raqami:* ${user.phone}`,{
+        bot.sendMessage(res[0].user_id, `🚕 Yo'lovchi topildi u bilan bog'laning\n\n🚩 *${user.from_city}dan*\n🏁 *${user.to_city}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${user.user_id})\n📞 *Telelefon raqami:* ${user.phone}`,{
             parse_mode: 'markdown',
             reply_markup: {
                 inline_keyboard: [
@@ -375,7 +382,7 @@ async function renderPassager (array,obj){
             }
         });
 
-        bot.sendMessage(obj.user_id, 1+index+`-yo'lovchi topildi 👇\n🚩 *${ress.from_city} ➡️ ${ress.from_district}dan*\n🏁 *${ress.to_city} ➡️ ${ress.to_district}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${ress.user_id})\n📞 *Telelefon raqami:* ${ress.phone}`,{
+        bot.sendMessage(obj.user_id, 1+index+`-yo'lovchi topildi 👇\n🚩 *${ress.from_city}dan*\n🏁 *${ress.to_city}ga*\n📨 *Telegram orqali:* [Bog'lanish](tg://user?id=${ress.user_id})\n📞 *Telelefon raqami:* ${ress.phone}`,{
             parse_mode: 'markdown',
             reply_markup: {
                 inline_keyboard: [

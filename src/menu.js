@@ -23,7 +23,7 @@ const date = {
         [{text: '15', callback_data: 'time=15'},{text: '16', callback_data: 'time=16'},{text: '17', callback_data: 'time=17'},{text: '18', callback_data: 'time=18'},{text: '19', callback_data: 'time=19'},{text: '20', callback_data: 'time=20'},{text: '21', callback_data: 'time=21'}],
         [{text: '22', callback_data: 'time=22'},{text: '23', callback_data: 'time=23'},{text: '24', callback_data: 'time=24'},{text: '25', callback_data: 'time=25'},{text: '26', callback_data: 'time=26'},{text: '27', callback_data: 'time=27'},{text: '28', callback_data: 'time=28'}],
         [{text: '29', callback_data: 'time=29'},{text: '30', callback_data: 'time=30'},{text: '31', callback_data: 'time=31'}],
-        [{text: '🔙 Ortga', callback_data: 'd=districtcancel'}]
+        [{text: '🔙 Ortga', callback_data: 'roole=districtcancel'}]  ///roole
     ]   
 }
 
