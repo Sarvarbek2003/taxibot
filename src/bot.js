@@ -46,7 +46,7 @@ bot.on('text', async msg => {
         });
     }
     else if(steep[steep.length-1] == 'tel'){
-        if (!/^\+998(9[012345789]|3[3]|7[1]|8[8])[0-9]{7}$/.test(text)) {
+        if (!/^\+998(9[012345789]|3[3]|7[1]|8[8])[0-9]{7}$/.test(text)) {		
             return bot.sendMessage(chatId,'☎️ Telefon raqamingizni +998901234567 shaklida to\'g\'ri yozing yoki pastagi <b>📞 Telefon raqam yuborish</b>  tugamasidan foydalanig\n\n‼️<b>Diqqat telefon raqam, siz bilan mijoz bog`lanishi uchun kerak</b>',{
                 parse_mode: 'html',
                 reply_markup: {
@@ -59,7 +59,7 @@ bot.on('text', async msg => {
         } else {
             steep.splice(1);
             await updateUsers(chatId, {steep: steep});
-            await updateOrder(userId, {status: 'pending'});
+            await updateOrder(chatId, {status: 'pending'});
         }
         bot.deleteMessage(chatId, msgId,{ reply_markup: {remove_keyboard: true} });
         bot.deleteMessage(chatId, msgId-1,{ reply_markup: {remove_keyboard: true} });
